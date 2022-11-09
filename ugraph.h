@@ -1,8 +1,9 @@
 /*
- * graph.h
+ * ugraph.h
  *
- *  Created on: 3/11/2018
- *      Author: pperezm
+ *  Edited on: 8/11/2022
+ *      Template: pperezm
+ * 		Repurpose: Daniel Hurtado
  */
 
 #ifndef UGRAPH_H_
@@ -19,6 +20,8 @@
 #include "exception.h"
 #include "header.h"
 
+using namespace std;
+
 /***********************************************************/
 /********************** UnweightedGraph ********************/
 /***********************************************************/
@@ -28,9 +31,9 @@ class UnweightedGraph {
 public:
 	virtual void addEdge(Vertex, Vertex) = 0;
 	virtual bool containsVertex(Vertex) const = 0;
-	virtual std::vector<Vertex> getVertexes() const = 0;
-	virtual std::set<Vertex> getConnectionFrom(Vertex) const = 0;
-	virtual std::string toString() const = 0;
+	virtual vector<Vertex> getVertexes() const = 0;
+	virtual set<Vertex> getConnectionFrom(Vertex) const = 0;
+	virtual string toString() const = 0;
 };
 
 /***********************************************************/
@@ -41,8 +44,8 @@ class UMatrixGraph : public UnweightedGraph<Vertex>{
 private:
 	int next, size;
 	bool direction;
-	std::vector<Vertex> vertexes;
-	std::vector<std::vector<bool> > edges;
+	vector<Vertex> vertexes;
+	vector<vector<bool> > edges;
 
 	int indexOf(Vertex v) const;
 
@@ -50,9 +53,9 @@ public:
 	UMatrixGraph(int, bool dir = true);
 	void addEdge(Vertex from, Vertex to);
 	bool containsVertex(Vertex v) const;
-	std::vector<Vertex> getVertexes() const;
-	std::set<Vertex> getConnectionFrom(Vertex v) const;
-	std::string toString() const;
+	vector<Vertex> getVertexes() const;
+	set<Vertex> getConnectionFrom(Vertex v) const;
+	string toString() const;
 };
 
 template <class Vertex>
@@ -82,6 +85,7 @@ int UMatrixGraph<Vertex>::indexOf(Vertex v) const {
 	return -1;
 }
 
+// Add an edge to the graph
 template <class Vertex>
 void UMatrixGraph<Vertex>::addEdge(Vertex from, Vertex to) {
 	int fp = indexOf(from);
@@ -110,25 +114,28 @@ void UMatrixGraph<Vertex>::addEdge(Vertex from, Vertex to) {
 	}
 }
 
+// Returns true if the graph contains the vertex v
 template <class Vertex>
 bool UMatrixGraph<Vertex>::containsVertex(Vertex v) const {
 	return (indexOf(v) != -1);
 }
 
+// Returns a vector with all the vertexes in the graph
 template <class Vertex>
-std::vector<Vertex> UMatrixGraph<Vertex>::getVertexes() const {
-	std::vector<Vertex> result(vertexes);
+vector<Vertex> UMatrixGraph<Vertex>::getVertexes() const {
+	vector<Vertex> result(vertexes);
 	return result;
 }
 
+// Returns a set with the vertexes that are connected to the given vertex
 template <class Vertex>
-std::set<Vertex> UMatrixGraph<Vertex>::getConnectionFrom(Vertex v) const {
+set<Vertex> UMatrixGraph<Vertex>::getConnectionFrom(Vertex v) const {
 	int i = indexOf(v);
 	if (i == -1) {
 		throw NoSuchElement();
 	}
 
-	std::set<Vertex> result;
+	set<Vertex> result;
 	for (int j = 0; j < next; j++) {
 		if (i != j && edges[i][j]) {
 			result.insert(vertexes[j]);
@@ -138,8 +145,8 @@ std::set<Vertex> UMatrixGraph<Vertex>::getConnectionFrom(Vertex v) const {
 }
 
 template <class Vertex>
-std::string UMatrixGraph<Vertex>::toString() const {
-	std::stringstream aux;
+string UMatrixGraph<Vertex>::toString() const {
+	stringstream aux;
 
 	for (int i = 0; i < next; i++) {
 		aux << vertexes[i] << "\t";
@@ -160,16 +167,16 @@ template<class Vertex>
 class UListGraph : public UnweightedGraph<Vertex>{
 private:
 	bool direction;
-	std::set<Vertex> vertexes;
-	std::map<Vertex, std::set<Vertex> > edges;
+	set<Vertex> vertexes;
+	map<Vertex, set<Vertex> > edges;
 
 public:
 	UListGraph(bool dir = true);
 	void addEdge(Vertex from, Vertex to);
 	bool containsVertex(Vertex v) const;
-	std::vector<Vertex> getVertexes() const;
-	std::set<Vertex> getConnectionFrom(Vertex v) const;
-	std::string toString() const;
+	vector<Vertex> getVertexes() const;
+	set<Vertex> getConnectionFrom(Vertex v) const;
+	string toString() const;
 };
 
 template <class Vertex>
@@ -177,21 +184,23 @@ UListGraph<Vertex>::UListGraph(bool dir) {
 	direction = dir;
 }
 
+// Method: addEdge
+// Description: Agrega un arco entre dos vértices
 template <class Vertex>
 void UListGraph<Vertex>::addEdge(Vertex from, Vertex to) {
-	typename std::set<Vertex>::iterator it;
-	typename std::list<Vertex>::iterator j;
+	typename set<Vertex>::iterator it;
+	typename list<Vertex>::iterator j;
 
 	it = vertexes.find(from);
 	if (it == vertexes.end()) {
 		vertexes.insert(from);
-		edges.insert(std::pair<Vertex,std::set<Vertex> >(from, std::set<Vertex>()));
+		edges.insert(pair<Vertex,set<Vertex> >(from, set<Vertex>()));
 	}
 
 	it = vertexes.find(to);
 	if (it == vertexes.end()) {
 		vertexes.insert(to);
-		edges.insert(std::pair<Vertex,std::set<Vertex> >(to, std::set<Vertex>()));
+		edges.insert(pair<Vertex,set<Vertex> >(to, set<Vertex>()));
 	}
 
 	edges[from].insert(to);
@@ -200,29 +209,34 @@ void UListGraph<Vertex>::addEdge(Vertex from, Vertex to) {
 	}
 }
 
+// Method: containsVertex
+// Description: Retorna true si el vértice v está en el grafo
 template <class Vertex>
 bool UListGraph<Vertex>::containsVertex(Vertex v) const {
 	return (vertexes.find(v) != vertexes.end());
 }
 
+// returns a vector with all the vertexes of the graph
 template <class Vertex>
-std::vector<Vertex> UListGraph<Vertex>::getVertexes() const {
-	std::vector<Vertex> result(vertexes.begin(), vertexes.end());
+vector<Vertex> UListGraph<Vertex>::getVertexes() const {
+	vector<Vertex> result(vertexes.begin(), vertexes.end());
 	return result;
 }
 
+// returns a set with the vertexes that are connected to the given vertex
 template <class Vertex>
-std::set<Vertex> UListGraph<Vertex>::getConnectionFrom(Vertex v) const {
-	std::set<Vertex> result(edges.at(v));
+set<Vertex> UListGraph<Vertex>::getConnectionFrom(Vertex v) const {
+	set<Vertex> result(edges.at(v));
 	return result;
 }
 
+// returns a string with the graph representation
 template <class Vertex>
-std::string UListGraph<Vertex>::toString() const {
-	std::stringstream aux;
+string UListGraph<Vertex>::toString() const {
+	stringstream aux;
 
-	typename std::set<Vertex>::iterator i;
-	typename std::set<Vertex>::const_iterator j;
+	typename set<Vertex>::iterator i;
+	typename set<Vertex>::const_iterator j;
 
 	for (i = vertexes.begin(); i != vertexes.end(); i++) {
 		aux << (*i) << "\t";
@@ -239,20 +253,24 @@ std::string UListGraph<Vertex>::toString() const {
 /**************************** DFS **************************/
 /***********************************************************/
 
+
+// Method: DFS
+// Description: Depth First Search
+
 template <class Vertex>
-std::set<Vertex> dfs(const Vertex& start,
+set<Vertex> dfs(const Vertex& origin,
 	const UnweightedGraph<Vertex>* graph) {
 
-	std::set<Vertex> visited;
-	std::stack<Vertex> pending;
-	typename std::set<Vertex>::iterator itr;
+	set<Vertex> visited;
+	stack<Vertex> pending;
+	typename set<Vertex>::iterator itr;
 
-	pending.push(start);
+	pending.push(origin);
 	while (!pending.empty()) {
 		Vertex v = pending.top(); pending.pop();
 		if (visited.find(v) == visited.end()) {
 			visited.insert(v);
-			std::set<Vertex> connected =
+			set<Vertex> connected =
 					graph->getConnectionFrom(v);
 			for (itr = connected.begin();
 					itr != connected.end(); itr++) {
@@ -269,18 +287,22 @@ std::set<Vertex> dfs(const Vertex& start,
 /**************************** BFS **************************/
 /***********************************************************/
 
-template <class Vertex>
-std::set<Vertex> bfs(const Vertex& start, const UnweightedGraph<Vertex>* graph) {
-	std::set<Vertex> visited;
-	std::queue<Vertex> pending;
-	typename std::set<Vertex>::iterator itr;
 
-	pending.push(start);
+// Method: BFS
+// Description: Breadth First Search
+
+template <class Vertex>
+set<Vertex> bfs(const Vertex& origin, const UnweightedGraph<Vertex>* graph) {
+	set<Vertex> visited;
+	queue<Vertex> pending;
+	typename set<Vertex>::iterator itr;
+
+	pending.push(origin);
 	while (!pending.empty()) {
 		Vertex v = pending.front(); pending.pop();
 		if (visited.find(v) == visited.end()) {
 			visited.insert(v);
-			std::set<Vertex> connected =
+			set<Vertex> connected =
 					graph->getConnectionFrom(v);
 
 			for (itr = connected.begin();
